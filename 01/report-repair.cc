@@ -10,8 +10,19 @@ void solution_for_puzzle_1(std::vector<int> &input)
 {
     for (auto it1 = input.begin(); it1 != input.end(); ++it1)
         for (auto it2 = it1 + 1; it2 != input.end(); ++it2)
-            if (it1 != it2 && *it1 + *it2 == 2020) {
+            if (*it1 + *it2 == 2020) {
                 std::cout << *it1 << " * " << *it2 << " = " << *it1 * *it2 << "\n";
+                return;
+            }
+}
+
+void solution_for_puzzle_2(std::vector<int> &input)
+{
+    for (auto it1 = input.begin(); it1 != input.end(); ++it1)
+        for (auto it2 = it1 + 1; it2 != input.end(); ++it2)
+            for (auto it3 = it2 + 1; it3 != input.end(); ++it3)
+            if (*it1 + *it2 + *it3 == 2020) {
+                std::cout << *it1 << " * " << *it2 << " * " << *it3 << " = " << *it1 * *it2 * *it3 << "\n";
                 return;
             }
 }
@@ -34,9 +45,11 @@ int main()
         input.push_back(n);
     }
 
+    // std::for_each(input.begin(), input.end(), [](int n){std::cout << n << "\n";});
+
     solution_for_puzzle_1(input);
 
-    // std::for_each(input.begin(), input.end(), [](int n){std::cout << n << "\n";});
+    solution_for_puzzle_2(input);
 
     return 0;
 }
