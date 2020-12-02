@@ -26,11 +26,24 @@ void solution_for_puzzle_1(std::vector<passwd> &input)
             valid_count++;
     }
 
-    std::cout << "The number of valid passwords: " << valid_count << "\n";
+    std::cout << "The number of valid passwords for puzzle 1: " << valid_count << "\n";
 }
 
 void solution_for_puzzle_2(std::vector<passwd> &input)
 {
+    int valid_count = 0;
+
+    for (auto it = input.begin(); it != input.end(); ++it) {
+        int num = 0;
+        if (it->min <= it->pwd.size() && it->pwd[it->min - 1] == it->c)
+            num++;
+        if (it->max <= it->pwd.size() && it->pwd[it->max - 1] == it->c)
+            num++;
+        if (num == 1)
+            valid_count++;
+    }
+
+    std::cout << "The number of valid passwords for puzzle 2: " << valid_count << "\n";
 }
 
 int main()
@@ -61,7 +74,7 @@ int main()
 
     solution_for_puzzle_1(input);
 
-    //solution_for_puzzle_2(input);
+    solution_for_puzzle_2(input);
 
     return 0;
 }
