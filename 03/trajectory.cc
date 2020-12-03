@@ -6,7 +6,7 @@
 #include <iterator>
 #include <algorithm>
 
-void solution_for_puzzle_1(std::vector<std::string> &map)
+int solution_for_puzzle_1(std::vector<std::string> &map, int right, int down)
 {
     // x pointing to right
     // y pointing down
@@ -16,12 +16,28 @@ void solution_for_puzzle_1(std::vector<std::string> &map)
     while (y < map.size()) {
         if (map[y][x] == '#')
             trees++;
-        y++;
-        x += 3;
+        x += right;
+        y += down;
         x %= map[0].size();
     }
 
-    std::cout << "The number of trees: " << trees << "\n";
+    return trees;
+}
+
+void solution_for_puzzle_2(std::vector<std::string> &map)
+{
+    std::vector<std::pair<int, int>> slopes =
+        {{1, 1}, {3, 1}, {5, 1}, {7, 1}, {1, 2}};
+
+    unsigned long long result = 1;
+
+    for (auto slope: slopes) {
+        int temp = solution_for_puzzle_1(map, slope.first, slope.second);
+        // std::cout << slope.first << ", " << slope.second << ": " << temp << "\n";
+        result *= temp;
+    }
+
+    std::cout << "The result is " << result << "\n";
 }
 
 int main()
@@ -42,7 +58,10 @@ int main()
 
     //std::for_each(map.begin(), map.end(), [](std::string& line){std::cout << line << "\n";});
 
-    solution_for_puzzle_1(map);
+    int trees = solution_for_puzzle_1(map, 3, 1);
+    std::cout << "The number of trees: " << trees << "\n";
+
+    solution_for_puzzle_2(map);
 
     return 0;
 }
