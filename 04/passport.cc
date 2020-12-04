@@ -29,6 +29,120 @@ int solution_for_puzzle_1(std::vector<std::map<std::string, std::string>> &passp
     return valid_num;
 }
 
+bool check_year(std::string year, int min, int max)
+{
+    if (year.size() != 4)
+        return false;
+
+    if (year[0] < '0' || year[0] > '9')
+        return false;
+    if (year[1] < '0' || year[1] > '9')
+        return false;
+    if (year[2] < '0' || year[2] > '9')
+        return false;
+    if (year[3] < '0' || year[3] > '9')
+        return false;
+
+    int y = std::stoi(year);
+    if (y >= min && y <= max)
+        return true;
+    else
+        return false;
+}
+
+bool is_hex(char c)
+{
+    return (c >= '0' && c <= '9') || (c >= 'a' || c <= 'f');
+}
+
+bool is_digit(char c)
+{
+    return (c >= '0' && c <= '9');
+}
+
+int solution_for_puzzle_2(std::vector<std::map<std::string, std::string>> &passports)
+{
+    int valid_num = 0;
+
+    for (auto passport : passports) {
+        if (passport.find("byr") == passport.end()
+            || passport.find("iyr") == passport.end()
+            || passport.find("eyr") == passport.end()
+            || passport.find("hgt") == passport.end()
+            || passport.find("hcl") == passport.end()
+            || passport.find("ecl") == passport.end()
+            || passport.find("pid") == passport.end()
+            //|| passport.find("cid") == passport.end()
+           )
+            continue;
+
+        std::string byr = passport.find("byr")->second;
+        std::string iyr = passport.find("iyr")->second;
+        std::string eyr = passport.find("eyr")->second;
+        std::string hgt = passport.find("hgt")->second;
+        std::string hcl = passport.find("hcl")->second;
+        std::string ecl = passport.find("ecl")->second;
+        std::string pid = passport.find("pid")->second;
+
+        if (!check_year(byr, 1920, 2002))
+            continue;
+
+        if (!check_year(iyr, 2010, 2020))
+            continue;
+
+        if (!check_year(eyr, 2020, 2030))
+            continue;
+
+        // check hgt
+        std::istringstream is{hgt};
+        int num = 0;
+        std::string unit;
+        is >> num >> unit;
+        if (!((unit.compare("cm") == 0 && num >= 150 && num <= 193)
+              || (unit.compare("in") == 0 && num >= 59 && num <= 76)))
+            continue;
+
+        // check hcl
+        if (hcl.size() != 7 || hcl[0] != '#')
+            continue;
+        bool is_valid_hcl = true;
+        for (int i = 1; i <= 6; i++)
+            if (! is_hex(hcl[i])) {
+                is_valid_hcl = false;
+                break;
+            }
+        if (! is_valid_hcl)
+            continue;
+                
+        // check ecl
+        if (ecl.compare("amb") != 0
+            && ecl.compare("blu") != 0
+            && ecl.compare("brn") != 0
+            && ecl.compare("gry") != 0
+            && ecl.compare("grn") != 0
+            && ecl.compare("hzl") != 0
+            && ecl.compare("oth") != 0)
+            continue;
+
+        // check pid
+        if (pid.size() != 9)
+            continue;
+
+        bool is_valid_pid = true;
+        for (int i = 0; i < 9; i++)
+            if (! is_digit(pid[i])) {
+                is_valid_pid = false;
+                break;
+            }
+        if (! is_valid_pid)
+            continue;
+
+        valid_num++;
+    }
+
+    return valid_num;
+}
+
 int main()
 {
     std::ifstream input_file{"input"};
@@ -73,8 +187,12 @@ int main()
     std::cout << "total properties: " << total_properties << "\n";
     */
 
-    int valid_num = solution_for_puzzle_1(passports);
+    int valid_num;
+
+    valid_num = solution_for_puzzle_1(passports);
     std::cout << "The number of valid passports: " << valid_num << "\n";
 
+    valid_num = solution_for_puzzle_2(passports);
+    std::cout << "The number of strictly valid passports: " << valid_num << "\n";
     return 0;
 }
