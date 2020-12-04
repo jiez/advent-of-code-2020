@@ -6,6 +6,7 @@
 #include <map>
 #include <iterator>
 #include <algorithm>
+#include <regex>
 
 
 int solution_for_puzzle_1(std::vector<std::map<std::string, std::string>> &passports)
@@ -19,9 +20,7 @@ int solution_for_puzzle_1(std::vector<std::map<std::string, std::string>> &passp
             || passport.find("hgt") == passport.end()
             || passport.find("hcl") == passport.end()
             || passport.find("ecl") == passport.end()
-            || passport.find("pid") == passport.end()
-            //|| passport.find("cid") == passport.end()
-           )
+            || passport.find("pid") == passport.end())
             continue;
         else
             valid_num++;
@@ -31,16 +30,8 @@ int solution_for_puzzle_1(std::vector<std::map<std::string, std::string>> &passp
 
 bool check_year(std::string year, int min, int max)
 {
-    if (year.size() != 4)
-        return false;
-
-    if (year[0] < '0' || year[0] > '9')
-        return false;
-    if (year[1] < '0' || year[1] > '9')
-        return false;
-    if (year[2] < '0' || year[2] > '9')
-        return false;
-    if (year[3] < '0' || year[3] > '9')
+    const std::regex year_regex{"[0-9]{4}"};
+    if (! std::regex_match(year, year_regex))
         return false;
 
     int y = std::stoi(year);
@@ -48,16 +39,6 @@ bool check_year(std::string year, int min, int max)
         return true;
     else
         return false;
-}
-
-bool is_hex(char c)
-{
-    return (c >= '0' && c <= '9') || (c >= 'a' || c <= 'f');
-}
-
-bool is_digit(char c)
-{
-    return (c >= '0' && c <= '9');
 }
 
 int solution_for_puzzle_2(std::vector<std::map<std::string, std::string>> &passports)
@@ -71,9 +52,7 @@ int solution_for_puzzle_2(std::vector<std::map<std::string, std::string>> &passp
             || passport.find("hgt") == passport.end()
             || passport.find("hcl") == passport.end()
             || passport.find("ecl") == passport.end()
-            || passport.find("pid") == passport.end()
-            //|| passport.find("cid") == passport.end()
-           )
+            || passport.find("pid") == passport.end())
             continue;
 
         std::string byr = passport.find("byr")->second;
@@ -103,15 +82,8 @@ int solution_for_puzzle_2(std::vector<std::map<std::string, std::string>> &passp
             continue;
 
         // check hcl
-        if (hcl.size() != 7 || hcl[0] != '#')
-            continue;
-        bool is_valid_hcl = true;
-        for (int i = 1; i <= 6; i++)
-            if (! is_hex(hcl[i])) {
-                is_valid_hcl = false;
-                break;
-            }
-        if (! is_valid_hcl)
+        std::regex hcl_regex{"#[0-9a-f]{6}"};
+        if (!std::regex_match(hcl, hcl_regex))
             continue;
                 
         // check ecl
@@ -125,16 +97,8 @@ int solution_for_puzzle_2(std::vector<std::map<std::string, std::string>> &passp
             continue;
 
         // check pid
-        if (pid.size() != 9)
-            continue;
-
-        bool is_valid_pid = true;
-        for (int i = 0; i < 9; i++)
-            if (! is_digit(pid[i])) {
-                is_valid_pid = false;
-                break;
-            }
-        if (! is_valid_pid)
+        std::regex pid_regex{"[0-9]{9}"};
+        if (!std::regex_match(pid, pid_regex))
             continue;
 
         valid_num++;
@@ -190,9 +154,10 @@ int main()
     int valid_num;
 
     valid_num = solution_for_puzzle_1(passports);
-    std::cout << "The number of valid passports: " << valid_num << "\n";
+    std::cout << "The number of valid passports: " << valid_num << " (182 expected)\n";
 
     valid_num = solution_for_puzzle_2(passports);
-    std::cout << "The number of strictly valid passports: " << valid_num << "\n";
+    std::cout << "The number of strictly valid passports: " << valid_num << " (109 expected)\n";
+
     return 0;
 }
