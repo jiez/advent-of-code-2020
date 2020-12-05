@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -57,7 +58,7 @@ int solution_for_puzzle_2(std::vector<std::string> &passes)
     /*
     for (int i = 0; i < 128 * 8; i++) {
         if (i % 8 == 0)
-            std::cout << i / 8 << ":";
+            std::cout << std::setw(3) << i / 8 << ":";
 
         if (seats[i])
             std::cout << "#";
