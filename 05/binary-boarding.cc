@@ -23,7 +23,7 @@ int calculate_seat_id(std::string& pass)
         else
             col_min = col_min + (col_max - col_min + 1) / 2;
 
-    std::cout << "row: " << row_min << ", " << "col: " << col_min << "\n";
+    //std::cout << "row: " << row_min << ", " << "col: " << col_min << "\n";
 
     return row_min * 8 + col_min;
 }
@@ -40,6 +40,42 @@ int solution_for_puzzle_1(std::vector<std::string> &passes)
 
     return highest_seat_id;
 }
+
+int solution_for_puzzle_2(std::vector<std::string> &passes)
+{
+    int highest_seat_id = 0;
+    bool seats[128 * 8];
+
+    for (int i = 0; i < 128 * 8; i++)
+        seats[i] = false;
+
+    for (auto pass: passes) {
+        int seat_id = calculate_seat_id(pass);
+        seats[seat_id] = true;
+    }
+
+    /*
+    for (int i = 0; i < 128 * 8; i++) {
+        if (i % 8 == 0)
+            std::cout << i / 8 << ":";
+
+        if (seats[i])
+            std::cout << "#";
+        else
+            std::cout << "O";
+
+        if (i % 8 == 7)
+            std::cout << "\n";
+    }
+    */
+
+    for (int i = 1; i < 128 * 8 - 1; i++)
+        if (!seats[i] && seats[i - 1] && seats[i + 1])
+            return i;
+
+    return 0;
+}
+
 
 int main()
 {
@@ -62,5 +98,7 @@ int main()
     int highest_seat_id = solution_for_puzzle_1(passes);
     std::cout << "The highest seat ID: " << highest_seat_id << "\n";
 
+    int seat_id = solution_for_puzzle_2(passes);
+    std::cout << "My seat ID: " << seat_id << "\n";
     return 0;
 }
