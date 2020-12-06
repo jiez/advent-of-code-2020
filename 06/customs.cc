@@ -6,80 +6,40 @@
 #include <vector>
 #include <iterator>
 #include <algorithm>
+#include <bitset>
 
-
-int solution_for_puzzle_1(std::vector<std::string> &customs)
+int solution_for_puzzle_1(std::vector<std::vector<std::bitset<26>>> &groups)
 {
     int sum = 0;
-    bool questions[26];
+    std::bitset<26> summary;
 
-    for (int i = 0; i < 26; i++)
-        questions[i] = false;
+    for (auto group: groups) {
+        summary.reset();
 
-    for (auto custom: customs) {
-        if (custom.size() == 0) {
-            int n = 0;
-            for (auto q: questions)
-                if (q)
-                    n++;
-            sum += n;
-            
-            for (int i = 0; i < 26; i++)
-                questions[i] = false;
+        for (auto person: group)
+            summary |= person;
 
-            continue;
-        }
-
-        for (auto c: custom)
-            questions[c - 'a'] = true;
+        sum += summary.count();
     }
 
-    int n = 0;
-    for (auto q: questions)
-        if (q)
-            n++;
-    sum += n;
- 
     return sum;
 }
 
-int solution_for_puzzle_2(std::vector<std::string> &customs)
+
+int solution_for_puzzle_2(std::vector<std::vector<std::bitset<26>>> &groups)
 {
     int sum = 0;
-    int questions[26];
+    std::bitset<26> summary;
 
-    for (int i = 0; i < 26; i++)
-        questions[i] = 0;
+    for (auto group: groups) {
+        summary.set();
 
-    int people = 0;
-    for (auto custom: customs) {
-        if (custom.size() == 0) {
-            int n = 0;
-            for (auto q: questions)
-                if (q == people)
-                    n++;
-            sum += n;
-            
-            for (int i = 0; i < 26; i++)
-                questions[i] = 0;
+        for (auto person: group)
+            summary &= person;
 
-            people = 0;
-
-            continue;
-        }
-
-        for (auto c: custom)
-            questions[c - 'a']++;
-
-        people++;
+        sum += summary.count();
     }
 
-    int n = 0;
-    for (auto q: questions)
-        if (q == people)
-            n++;
-    sum += n;
- 
     return sum;
 }
 
@@ -87,7 +47,7 @@ int solution_for_puzzle_2(std::vector<std::string> &customs)
 int main()
 {
     std::ifstream input_file{"input"};
-    std::vector<std::string> customs;
+    std::vector<std::vector<std::bitset<26>>> groups;
 
     if (!input_file) {
         std::cout << "input file is missing\n";
@@ -95,18 +55,27 @@ int main()
     }
 
     std::string line;
+    std::vector<std::bitset<26>> group;
+
     while (getline(input_file, line)) {
-        std::istringstream is{line};
-        customs.push_back(line);
+        if (line.size() == 0) {
+            std::vector<std::bitset<26>> temp = std::move(group);
+            groups.push_back(temp);
+            continue;
+        }
+        std::bitset<26> questions;
+        for (auto c: line)
+            questions.set(c - 'a');
+        group.push_back(questions);
     }
+    groups.push_back(group);
 
-    //std::for_each(passes.begin(), passes.end(), [](std::string& line){std::cout << line << "\n";});
+    int result;
+    result = solution_for_puzzle_1(groups);
+    std::cout << "The sum for puzzle 1 is: " << result << " (6748 expected)" << "\n";
 
-    int result = solution_for_puzzle_1(customs);
-    std::cout << "The sum is: " << result << "\n";
-
-    int result2 = solution_for_puzzle_2(customs);
-    std::cout << "The sum is: " << result2 << "\n";
+    result = solution_for_puzzle_2(groups);
+    std::cout << "The sum for puzzle 2 is: " << result << " (3445 expected)" << "\n";
 
     return 0;
 }
