@@ -43,6 +43,46 @@ int solution_for_puzzle_1(std::vector<std::string> &customs)
     return sum;
 }
 
+int solution_for_puzzle_2(std::vector<std::string> &customs)
+{
+    int sum = 0;
+    int questions[26];
+
+    for (int i = 0; i < 26; i++)
+        questions[i] = 0;
+
+    int people = 0;
+    for (auto custom: customs) {
+        if (custom.size() == 0) {
+            int n = 0;
+            for (auto q: questions)
+                if (q == people)
+                    n++;
+            sum += n;
+            
+            for (int i = 0; i < 26; i++)
+                questions[i] = 0;
+
+            people = 0;
+
+            continue;
+        }
+
+        for (auto c: custom)
+            questions[c - 'a']++;
+
+        people++;
+    }
+
+    int n = 0;
+    for (auto q: questions)
+        if (q == people)
+            n++;
+    sum += n;
+ 
+    return sum;
+}
+
 
 int main()
 {
@@ -64,6 +104,9 @@ int main()
 
     int result = solution_for_puzzle_1(customs);
     std::cout << "The sum is: " << result << "\n";
+
+    int result2 = solution_for_puzzle_2(customs);
+    std::cout << "The sum is: " << result2 << "\n";
 
     return 0;
 }
