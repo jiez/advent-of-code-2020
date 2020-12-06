@@ -121,8 +121,7 @@ int main()
     std::map<std::string, std::string> passport;
     while (getline(input_file, line)) {
         if (line.size() == 0) {
-            std::map<std::string, std::string> temp = std::move(passport);
-            passports.push_back(temp);
+            passports.push_back(std::move(passport));
             continue;
         }
         std::istringstream is{line};
@@ -134,7 +133,7 @@ int main()
             passport.insert(std::pair<std::string, std::string>(property.substr(0, d), property.substr(d + 1)));
         }
     }
-    passports.push_back(passport);
+    passports.push_back(std::move(passport));
 
     /*
     for (auto passport : passports) {
