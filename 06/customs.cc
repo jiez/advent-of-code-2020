@@ -59,8 +59,7 @@ int main()
 
     while (getline(input_file, line)) {
         if (line.size() == 0) {
-            std::vector<std::bitset<26>> temp = std::move(group);
-            groups.push_back(temp);
+            groups.push_back(std::move(group));
             continue;
         }
         std::bitset<26> questions;
@@ -68,7 +67,7 @@ int main()
             questions.set(c - 'a');
         group.push_back(questions);
     }
-    groups.push_back(group);
+    groups.push_back(std::move(group));
 
     int result;
     result = solution_for_puzzle_1(groups);
