@@ -30,6 +30,23 @@ int solution_for_puzzle_1(std::vector<std::vector<int>> &bags, int start_bag)
     return bag_set.size() - 1;
 }
 
+static int required_bags(std::vector<std::vector<int>> &bags, int bag)
+{
+    int count = 1;
+    for (int i = 0; i < bags[bag].size(); i++) {
+        int b = bags[bag][i];
+        if (b > 0)
+            count += required_bags(bags, i) * b;
+    }
+    return count;
+}
+
+int solution_for_puzzle_2(std::vector<std::vector<int>> &bags, int start_bag)
+{
+    return required_bags(bags, start_bag) - 1;
+}
+
+
 int main()
 {
     std::ifstream input_file{"input"};
@@ -81,12 +98,10 @@ int main()
     int how_many;
 
     how_many = solution_for_puzzle_1(bags, color2index["shiny gold"]);
-    std::cout << "The number of bags containing shiny gold: " << how_many << " (182 expected)\n";
+    std::cout << "The number of bags containing shiny gold: " << how_many << " (378 expected)\n";
 
-/*
-    valid_num = solution_for_puzzle_2(passports);
-    std::cout << "The number of strictly valid passports: " << valid_num << " (109 expected)\n";
-*/
+    how_many = solution_for_puzzle_2(bags, color2index["shiny gold"]);
+    std::cout << "The number of bags required inside shiny gold bag: " << how_many << " (27526 expected)\n";
 
     return 0;
 }
