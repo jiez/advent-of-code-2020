@@ -88,8 +88,7 @@ int main()
 
         while(std::regex_search(s, m, bag_color2)) {
             //std::cout << m[2] << ":" << color2index[m[2]] << ":" << m[1] << "\n";
-            if (m[1].compare("no other") != 0)
-                containing_bags[color2index[m[2]]] = std::stoi(m[1]);
+            containing_bags[color2index[m[2]]] = std::stoi(m[1]);
             s = m.suffix().str();
         }
         bags.push_back(std::move(containing_bags));
