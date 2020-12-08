@@ -36,6 +36,61 @@ int solution_for_puzzle_1(std::vector<insn_t> &program)
     return 0;
 }
 
+static bool execute(std::vector<insn_t>& program, int* ret_acc)
+{
+    int pc = 0;
+    int acc = 0;
+    std::vector<bool> executed(program.size(), false);
+
+    while (1) {
+        insn_t insn = program[pc];
+
+        if (pc == program.size())
+            break;
+
+        if (executed[pc])
+            return false;
+        else
+            executed[pc] = true;
+
+        if (insn.name.compare("nop") == 0) {
+            pc++;
+        } else if (insn.name.compare("acc") == 0) {
+            acc += insn.arg;
+            pc++;
+        } else if (insn.name.compare("jmp") == 0) {
+            pc += insn.arg;
+        }
+    }
+
+    *ret_acc = acc;
+    return true;
+}
+
+int solution_for_puzzle_2(std::vector<insn_t> &program)
+{
+    for (int i = 0; i < program.size(); i++) {
+        std::string orig_name = program[i].name;
+
+        if (program[i].name.compare("nop") == 0) {
+            program[i].name = "jmp";
+        } else if (program[i].name.compare("jmp") == 0) {
+            program[i].name = "nop";
+        } else
+            continue;
+
+        int acc;
+        bool halted = execute(program, &acc);
+
+        if (halted)
+            return acc;
+
+        program[i].name = orig_name;
+    }
+
+    return 0;
+}
+
 
 int main()
 {
@@ -63,7 +118,10 @@ int main()
     int result;
 
     result = solution_for_puzzle_1(program);
-    std::cout << "acc value before first repeat: " << result << "\n";
+    std::cout << "acc value before first repeat: " << result << " (1782 expected)\n";
+
+    result = solution_for_puzzle_2(program);
+    std::cout << "acc value when halt: " << result << " (797 expected)\n";
 
     return 0;
 }
