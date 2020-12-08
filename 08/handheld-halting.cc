@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -8,33 +9,6 @@ struct insn_t {
     std::string name;
     int arg;
 };
-
-int solution_for_puzzle_1(std::vector<insn_t> &program)
-{
-    int pc = 0;
-    int acc = 0;
-    std::vector<bool> executed(program.size(), false);
-
-    while (1) {
-        insn_t insn = program[pc];
-
-        if (executed[pc])
-            return acc;
-        else
-            executed[pc] = true;
-
-        if (insn.name.compare("nop") == 0) {
-            pc++;
-        } else if (insn.name.compare("acc") == 0) {
-            acc += insn.arg;
-            pc++;
-        } else if (insn.name.compare("jmp") == 0) {
-            pc += insn.arg;
-        }
-    }
-
-    return 0;
-}
 
 static bool execute(std::vector<insn_t>& program, int* ret_acc)
 {
@@ -48,10 +22,12 @@ static bool execute(std::vector<insn_t>& program, int* ret_acc)
         if (pc == program.size())
             break;
 
-        if (executed[pc])
+        if (executed[pc]) {
+            *ret_acc = acc;
             return false;
-        else
-            executed[pc] = true;
+        }
+
+        executed[pc] = true;
 
         if (insn.name.compare("nop") == 0) {
             pc++;
@@ -65,6 +41,17 @@ static bool execute(std::vector<insn_t>& program, int* ret_acc)
 
     *ret_acc = acc;
     return true;
+}
+
+
+int solution_for_puzzle_1(std::vector<insn_t> &program)
+{
+    int acc;
+    bool halted = execute(program, &acc);
+
+    assert(! halted);
+
+    return acc;
 }
 
 int solution_for_puzzle_2(std::vector<insn_t> &program)
