@@ -29,12 +29,12 @@ static bool execute(std::vector<insn_t>& program, int* ret_acc)
 
         executed[pc] = true;
 
-        if (insn.name.compare("nop") == 0) {
+        if (insn.name == "nop") {
             pc++;
-        } else if (insn.name.compare("acc") == 0) {
+        } else if (insn.name == "acc") {
             acc += insn.arg;
             pc++;
-        } else if (insn.name.compare("jmp") == 0) {
+        } else if (insn.name == "jmp") {
             pc += insn.arg;
         }
     }
@@ -59,9 +59,9 @@ int solution_for_puzzle_2(std::vector<insn_t> &program)
     for (int i = 0; i < program.size(); i++) {
         std::string orig_name = program[i].name;
 
-        if (program[i].name.compare("nop") == 0) {
+        if (program[i].name == "nop") {
             program[i].name = "jmp";
-        } else if (program[i].name.compare("jmp") == 0) {
+        } else if (program[i].name == "jmp") {
             program[i].name = "nop";
         } else
             continue;
