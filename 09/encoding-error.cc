@@ -3,7 +3,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <cstring>
 #include <cassert>
 
 static bool is_valid(std::vector<unsigned long long>& input, int preamble, int index)
@@ -27,9 +26,7 @@ int solution_for_puzzle_1(std::vector<unsigned long long>& input, int preamble)
 int solution_for_puzzle_2(std::vector<unsigned long long>& input, unsigned long long invalid_num)
 {
     int num = input.size();
-    unsigned long long sums[num][num];
-
-    memset(sums, 0, num * num * sizeof(unsigned long long));
+    unsigned long long sums[num][num] = {0};
 
     for (int i = 0; i < num; i++)
         sums[i][0] = input[i];
