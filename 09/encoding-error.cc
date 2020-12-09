@@ -41,10 +41,8 @@ int solution_for_puzzle_2(std::vector<unsigned long long>& input, unsigned long 
                 unsigned long long min = input[i];
                 unsigned long long max = input[i];
                 for (int j = i + 1; j < i + length; j++) {
-                    if (min > input[j])
-                        min = input[j];
-                    if (max < input[j])
-                        max = input[j];
+                    min = std::min(min, input[j]);
+                    max = std::max(max, input[j]);
                 }
                 return min + max;
             }
