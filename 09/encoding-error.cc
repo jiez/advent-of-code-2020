@@ -3,7 +3,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <string.h>
+#include <cstring>
 #include <cassert>
 
 static bool is_valid(std::vector<unsigned long long>& input, int preamble, int index)
