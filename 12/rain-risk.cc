@@ -79,6 +79,76 @@ static int solution_for_puzzle_1(const std::vector<action_t>& actions)
     return abs(x) + abs(y);
 }
 
+static int solution_for_puzzle_2(const std::vector<action_t>& actions)
+{
+    int ship_x = 0, ship_y = 0;
+    // x, y now are for waypoint
+    int x = 10, y = 1;
+
+    for (auto a: actions) {
+        int angle;
+
+        switch (a.act) {
+        case 'N':
+            y += a.val;
+            break;
+
+        case 'S':
+            y -= a.val;
+            break;;
+
+        case 'E':
+            x += a.val;
+            break;
+
+        case 'W':
+            x -= a.val;
+            break;
+
+        case 'L':
+            if (a.val == 90)
+                angle = 270;
+            else if (a.val == 180)
+                angle = 180;
+            else if (a.val == 270)
+                angle = 90;
+            else
+                angle = 0;
+            // fall through
+        case 'R':
+            if (a.act == 'R')
+                angle = a.val;
+
+            if (angle == 90) {
+                int temp = x;
+                x = y;
+                y = -temp;
+            } else if (angle == 180) {
+                x = -x;
+                y = -y;
+            } else if (angle == 270) {
+                int temp = x;
+                x = -y;
+                y = temp;
+            }
+            break;
+
+        case 'F':
+            ship_x += x * a.val;
+            ship_y += y * a.val;
+            break;
+
+        default:
+            break;
+        }
+
+        //std::cout << a.act << a.val << ": " << ship_x << "," << ship_y << " waypoint: " << x << "," << y << "\n";
+    }
+
+    return abs(ship_x) + abs(ship_y);
+}
+
+
 int main()
 {
     std::vector<action_t> actions;
@@ -102,6 +172,11 @@ int main()
 
     distance = solution_for_puzzle_1(actions);
     std::cout << "distance is " << distance << "\n";
+    assert(distance == 1133);
+
+    distance = solution_for_puzzle_2(actions);
+    std::cout << "distance is " << distance << "\n";
+    assert(distance == 61053);
 
     return 0;
 }
