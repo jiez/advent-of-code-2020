@@ -23,11 +23,42 @@ static int solution_for_puzzle_1(const std::vector<int>& ids, int earliest_time)
     return earliest_id * shortest_wait_time;
 }
 
+static unsigned long long solution_for_puzzle_2(const std::vector<int>& ids, const std::vector<int>& positions)
+{
+    int max_id = 0;
+    int max_id_pos;
+    int max_id_idx;
+
+    for (int i = 0; i < ids.size(); i++)
+        if (ids[i] > max_id) {
+            max_id = ids[i];
+            max_id_pos = positions[i];
+            max_id_idx = i;
+        }
+    for (unsigned long long t = max_id; true; t += max_id) {
+        bool found = true;
+
+        for (int i = 0; i < ids.size(); i++) {
+            if (i == max_id_idx)
+                continue;
+
+            if ((t - max_id_pos + positions[i]) % ids[i] != 0) {
+                found = false;
+                break;
+            }
+        }
+
+        if (found)
+            return t - max_id_pos;
+    }
+}
+
 
 int main()
 {
     int earliest_time;
     std::vector<int> ids;
+    std::vector<int> positions;
     std::ifstream input_file{"input"};
 
     if (!input_file) {
@@ -46,18 +77,25 @@ int main()
     //std::cout << line << "\n";
     std::istringstream is2{line};        
     std::string id_str;
+    int position = 0;
     while (getline(is2, id_str, ',')) {
-        if (id_str == "x")
+        if (id_str == "x") {
+            position++;
             continue;
+        }
         std::istringstream is3{id_str};        
         int id;
         is3 >> id;
         ids.push_back(id);
-        //std::cout << id << "\n";
+        positions.push_back(position);
+        //std::cout << position << ":" << id << "\n";
+        position++;
     }
 
     int result = solution_for_puzzle_1(ids, earliest_time);
     std::cout << "result is " << result << "\n";
 
+    unsigned long long result2 = solution_for_puzzle_2(ids, positions);
+    std::cout << "result is " << result2 << "\n";
     return 0;
 }
