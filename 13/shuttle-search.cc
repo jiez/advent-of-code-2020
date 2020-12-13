@@ -8,6 +8,11 @@
 #include <cstdlib>
 
 
+struct shuttle_t {
+    int id;
+    int pos;
+};
+
 static int solution_for_puzzle_1(const std::vector<int>& ids, int earliest_time)
 {
     int earliest_id;
@@ -23,34 +28,67 @@ static int solution_for_puzzle_1(const std::vector<int>& ids, int earliest_time)
     return earliest_id * shortest_wait_time;
 }
 
-static unsigned long long solution_for_puzzle_2(const std::vector<int>& ids, const std::vector<int>& positions)
+static unsigned long long solution_for_puzzle_2(std::vector<shuttle_t>& shuttles)
 {
-    int max_id = 0;
-    int max_id_pos;
-    int max_id_idx;
+    std::sort(shuttles.begin(), shuttles.end(), [](shuttle_t s1, shuttle_t s2) {
+        return s1.id > s2.id;
+    });
 
-    for (int i = 0; i < ids.size(); i++)
-        if (ids[i] > max_id) {
-            max_id = ids[i];
-            max_id_pos = positions[i];
-            max_id_idx = i;
-        }
-    for (unsigned long long t = max_id; true; t += max_id) {
+    /*
+    for (auto s: shuttles) {
+        std::cout << s.pos << ":" << s.id << "\n";
+    }
+    */
+
+    // brutal force the first N
+    int n = 4;
+    if (n > shuttles.size())
+        n = shuttles.size();
+
+    int max_id = shuttles[0].id;
+    int max_id_pos = shuttles[0].pos;
+    unsigned long long t;
+
+    for (t = max_id; true; t += max_id) {
         bool found = true;
 
-        for (int i = 0; i < ids.size(); i++) {
-            if (i == max_id_idx)
-                continue;
-
-            if ((t - max_id_pos + positions[i]) % ids[i] != 0) {
+        for (int i = 1; i < n; i++) {
+            if ((t - max_id_pos + shuttles[i].pos) % shuttles[i].id != 0) {
                 found = false;
                 break;
             }
         }
 
         if (found)
-            return t - max_id_pos;
+            break;
     }
+
+    t -= max_id_pos;
+
+    if (n == shuttles.size())
+        return t;
+
+    // brutal force the others
+
+    unsigned long long inc = 1;
+    for (int i = 0; i < n; i++)
+        inc *= shuttles[i].id;
+
+    for (; true; t += inc) {
+        bool found = true;
+
+        for (int i = n; i < shuttles.size(); i++) {
+            if ((t + shuttles[i].pos) % shuttles[i].id != 0) {
+                found = false;
+                break;
+            }
+        }
+
+        if (found)
+            break;
+    }
+
+    return t;
 }
 
 
@@ -58,7 +96,7 @@ int main()
 {
     int earliest_time;
     std::vector<int> ids;
-    std::vector<int> positions;
+    std::vector<shuttle_t> shuttles;
     std::ifstream input_file{"input"};
 
     if (!input_file) {
@@ -87,15 +125,21 @@ int main()
         int id;
         is3 >> id;
         ids.push_back(id);
-        positions.push_back(position);
-        //std::cout << position << ":" << id << "\n";
+
+        shuttle_t shuttle;
+        shuttle.id = id;
+        shuttle.pos = position;
+        shuttles.push_back(shuttle);
+        //std::cout << shuttle.pos << ":" << shuttle.id << "\n";
         position++;
     }
 
     int result = solution_for_puzzle_1(ids, earliest_time);
     std::cout << "result is " << result << "\n";
+    assert(result = 8063);
 
-    unsigned long long result2 = solution_for_puzzle_2(ids, positions);
+    unsigned long long result2 = solution_for_puzzle_2(shuttles);
     std::cout << "result is " << result2 << "\n";
+    assert(result2 == 775230782877242);
     return 0;
 }
