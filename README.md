@@ -16,3 +16,10 @@ If a vector [a b]' turns clockwise A degree to get [x y]', we have
 x = a cosA + b sinA
 
 y = - a sinA + b cosA
+
+
+Day 14
+------
+
+-Wconversion will be useful for catch conversion bugs.
+It is not enabled by -Wall or -Wextra.
