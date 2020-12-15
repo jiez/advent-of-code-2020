@@ -20,23 +20,20 @@ static int solution_for_puzzle_12(const std::vector<int>& start_numbers, int ord
         auto search = numbers.find(last_number);
         assert(search != numbers.end());
 
-        if (search->second.first == 0) {
-            int temp = 0;
-            auto search2 = numbers.find(temp);
-            int last_turn = 0;
-            if (search2 != numbers.end())
-                last_turn = search2->second.second;
-            numbers[temp] = std::make_pair(last_turn, turn);
-            last_number = temp;
-        } else {
-            int temp = search->second.second - search->second.first;
-            auto search2 = numbers.find(temp);
-            int last_turn = 0;
-            if (search2 != numbers.end())
-                last_turn = search2->second.second;
-            numbers[temp] = std::make_pair(last_turn, turn);
-            last_number = temp;
-        }
+        int temp;
+
+        if (search->second.first == 0)
+            temp = 0;
+        else
+            temp = search->second.second - search->second.first;
+
+        auto search2 = numbers.find(temp);
+        int last_turn = 0;
+        if (search2 != numbers.end())
+            last_turn = search2->second.second;
+        numbers[temp] = std::make_pair(last_turn, turn);
+        last_number = temp;
+
         turn++;
     } while (turn <= ord);
 
