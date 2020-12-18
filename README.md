@@ -23,3 +23,14 @@ Day 14
 
 -Wconversion will be useful for catch conversion bugs.
 It is not enabled by -Wall or -Wextra.
+
+
+Day 17
+------
+
+How to Create a generic solution for 3-D and 4-D ?
+
+How about using unordered_map? Will it improve performance?
+
+Add constructor to some struct types to see if it can simplify code.
+
