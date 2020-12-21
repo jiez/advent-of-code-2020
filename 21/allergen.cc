@@ -82,11 +82,14 @@ static void solution_for_puzzle(std::map<std::string, std::vector<std::set<std::
 
     std::cout << "result is " << num << "\n";
 
-    std::cout << "canonical dangerous ingredient list is ";
-    for (auto allergen: possible_causes) {
-        assert(allergen.second.size() == 1);
-        for (auto ingredient: allergen.second)
-            std::cout << ingredient << ",";
+    std::cout << "canonical dangerous ingredient list is \"";
+    for (auto it = possible_causes.begin(); it != possible_causes.end(); ++it) {
+        assert(it->second.size() == 1);
+        std::cout << *(it->second.begin());
+        if (it != std::prev(possible_causes.end()))
+            std::cout << ",";
+        else
+            std::cout << "\"";
     }
     std::cout << "\n";
 }
