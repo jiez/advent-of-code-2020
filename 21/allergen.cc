@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <iterator>
 
-static int solution_for_puzzle_1(std::map<std::string, std::vector<std::set<std::string>>>& allergens, std::map<std::string, int> all_ingredients)
+static void solution_for_puzzle(std::map<std::string, std::vector<std::set<std::string>>>& allergens, std::map<std::string, int> all_ingredients)
 {
     std::map<std::string, std::set<std::string>> possible_causes;
 
@@ -80,7 +80,15 @@ static int solution_for_puzzle_1(std::map<std::string, std::vector<std::set<std:
         if (allergy_ingredients.find(ingredient.first) == allergy_ingredients.end())
             num += ingredient.second;
 
-    return num;
+    std::cout << "result is " << num << "\n";
+
+    std::cout << "canonical dangerous ingredient list is ";
+    for (auto allergen: possible_causes) {
+        assert(allergen.second.size() == 1);
+        for (auto ingredient: allergen.second)
+            std::cout << ingredient << ",";
+    }
+    std::cout << "\n";
 }
 
 
@@ -140,8 +148,7 @@ int main()
         //std::cout << "\n";
     }
 
-    int result = solution_for_puzzle_1(allergens, all_ingredients);
-    std::cout << "result is " << result << "\n";
+    solution_for_puzzle(allergens, all_ingredients);
 
     return 0;
 }
