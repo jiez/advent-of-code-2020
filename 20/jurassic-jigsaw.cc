@@ -9,12 +9,8 @@
 #include <array>
 #include <algorithm>
 
-
-struct tile_t {
+struct image_t {
     std::vector<std::string> img;
-    std::array<int, 4> neighbors = {-1, -1, -1, -1};
-
-    tile_t() {}
 
     // rotate 90 degree clockwise
     void rotate() {
@@ -38,6 +34,20 @@ struct tile_t {
         for (auto& row: img)
             std::reverse(row.begin(), row.end());
     }
+};
+
+struct sea_monster_t: public image_t {
+    sea_monster_t() {
+        img.push_back("                  # ");
+        img.push_back("#    ##    ##    ###");
+        img.push_back(" #  #  #  #  #  #   ");
+    }
+};
+
+struct tile_t: public image_t {
+    std::array<int, 4> neighbors = {-1, -1, -1, -1};
+
+    tile_t() {}
 
     bool match(tile_t& other, int side) {
         for (int rotate = 0; rotate < 4; rotate++) {
@@ -213,6 +223,97 @@ static unsigned long long solution_for_puzzle_1(std::map<int, tile_t>& tiles)
     return top_left * top_right * bottom_left * bottom_right;
 }
 
+static void search_sea_monster(const std::vector<std::string>& image, const std::vector<std::string>& monster, std::vector<std::string>& record)
+{
+    for (int i = 0; i < image.size() - monster.size(); i++)
+        for (int j = 0; j < image[0].size() - monster[0].size(); j++) {
+            bool found = true;
+            for (int k = 0; k < monster.size(); k++) {
+                for (int l = 0; l < monster[0].size(); l++)
+                    if (monster[k][l] == '#' && image[i + k][j + l] != '#') {
+                        found = false;
+                        break;
+                    }
+                if (!found)
+                    break;
+            }
+            if (found)
+                for (int k = 0; k < monster.size(); k++)
+                    for (int l = 0; l < monster[0].size(); l++)
+                        if (monster[k][l] == '#')
+                            record[i + k][j + l] = 'O';
+        }
+}
+
+static unsigned long long solution_for_puzzle_2(std::map<int, tile_t>& tiles)
+{
+    std::vector<std::string> image;
+
+    // find the top left corner tile
+    int top_left = tiles.begin()->first;
+    auto it = tiles.find(top_left);
+    while (it->second.neighbors[3] != -1) {
+        top_left = it->second.neighbors[3];
+        it = tiles.find(top_left);
+    }
+    while (it->second.neighbors[0] != -1) {
+        top_left = it->second.neighbors[0];
+        it = tiles.find(top_left);
+    }
+
+    int next_row_first = top_left;
+
+    while (next_row_first != -1) {
+        int first_row = image.size();
+
+        it = tiles.find(next_row_first);
+        for (int i = 1; i < it->second.img.size() - 1; i++) {
+            std::string line = it->second.img[i];
+            image.push_back(line.substr(1, line.size() - 2));
+        }
+
+        next_row_first = it->second.neighbors[2];
+
+        int id = it->second.neighbors[1];
+        while (id != -1) {
+            it = tiles.find(id);
+            for (int i = 1; i < it->second.img.size() - 1; i++) {
+                std::string line = it->second.img[i];
+                image[first_row + i - 1].append(line.substr(1, line.size() - 2));
+            }
+            id = it->second.neighbors[1];
+        }
+    }
+
+    // try to find the sea monsters in image
+    sea_monster_t monster;
+    std::vector<std::string> record = image;
+
+    for (int i = 0; i < 4; i++) {
+        search_sea_monster(image, monster.img, record);
+        monster.rotate();
+    }
+
+    monster.flip_updown();
+
+    for (int i = 0; i < 4; i++) {
+        search_sea_monster(image, monster.img, record);
+        monster.rotate();
+    }
+
+    int water_roughness = 0;
+
+    for (int i = 0; i < image.size(); i++) {
+        // std::cout << record[i] << "\n";
+        for (int j = 0; j < image[0].size(); j++)
+            if (image[i][j] == '#' && record[i][j] != 'O')
+                water_roughness++;
+    }
+
+    return water_roughness;
+}
+
+
 int main()
 {
     std::ifstream input_file{"input"};
@@ -252,6 +353,9 @@ int main()
     unsigned long long result;
 
     result = solution_for_puzzle_1(tiles);
+    std::cout << "result is " << result << "\n";
+
+    result = solution_for_puzzle_2(tiles);
     std::cout << "result is " << result << "\n";
 
     return 0;
