@@ -94,7 +94,7 @@ static unsigned long long recurse(std::deque<int> cards1, std::deque<int> cards2
             player1_win = true;
             break;
         } else
-            past.insert(p);
+            past.insert(std::move(p));
 
 #ifdef DEBUG
         std::cout << "Player 1 plays: " << cards1.front() << "\n";
