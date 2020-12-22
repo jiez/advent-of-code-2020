@@ -209,9 +209,11 @@ int main()
 
     score = solution_for_puzzle_1(cards1, cards2);
     std::cout << "score is " << score << "\n";
+    assert(score == 33631);
 
     score = solution_for_puzzle_2(cards1, cards2);
     std::cout << "recursive score is " << score << "\n";
+    assert(score == 33469);
 
     return 0;
 }
