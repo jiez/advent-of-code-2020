@@ -41,3 +41,21 @@ Day 19
 I first converted rules into an NFA, then converted this NFA into a DFA,
 then used this DFA to recognize the messages. There might be a better way to
 solve these two puzzles of Day 19.
+
+
+Day 22
+------
+
+Bug! Bug! Bug!
+
+
+```
+    for (int i = 0; i < cards1_sub.size() - num1; i++)
+        cards1_sub.pop();
+```
+
+I chose queue at the beginning. But later it seems a bad decision for part 2.
+We need to get the first several elements from the container.
+
+We also need to print all elements in the container not destructively
+for debug purpose.
