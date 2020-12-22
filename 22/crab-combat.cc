@@ -6,6 +6,9 @@
 #include <queue>
 #include <set>
 
+//#define DEBUG
+
+static int last_game;
 
 static unsigned long long solution_for_puzzle_1(std::queue<int> cards1, std::queue<int> cards2)
 {
@@ -37,21 +40,53 @@ static unsigned long long solution_for_puzzle_1(std::queue<int> cards1, std::que
     return score;
 }
 
+static void print_cards(std::queue<int> cards)
+{
+    while (!cards.empty()) {
+        std::cout << cards.front();
+        cards.pop();
+        if (!cards.empty())
+            std::cout << ", ";
+    }
+}
 
-static unsigned long long recurse(std::queue<int> cards1, std::queue<int> cards2)
+static unsigned long long recurse(std::queue<int> cards1, std::queue<int> cards2, int from_game)
 {
     bool player1_win;
 
+    last_game++;
+    int game = last_game;
+    int round = 1;
+
     std::set<std::pair<std::queue<int>, std::queue<int>>> past;
 
+#ifdef DEBUG
+    std::cout << "=== Game " << game << " ===\n";
+#endif
+
     while (cards1.size() > 0 && cards2.size() > 0) {
+#ifdef DEBUG
+        std::cout << "\n-- Round " << round << " (Game " << game << ") --\n";
+        std::cout << "Player 1's deck: "; print_cards(cards1); std::cout << "\n";
+        std::cout << "Player 2's deck: "; print_cards(cards2); std::cout << "\n";
+#endif
+
         // if cards1 and cards2 seen before, player1 win
         std::pair<std::queue<int>, std::queue<int>> p{cards1, cards2};
         if (past.find(p) != past.end()) {
+#ifdef DEBUG
+            std::cout << "same cards as a previous round\n";
+            std::cout << "Player 1 wins round " << round << " of game " << game << "!\n";
+#endif
             player1_win = true;
             break;
         } else
             past.insert(p);
+
+#ifdef DEBUG
+        std::cout << "Player 1 plays: " << cards1.front() << "\n";
+        std::cout << "Player 2 plays: " << cards2.front() << "\n";
+#endif
 
         if (cards1.front() <= cards1.size() - 1 && cards2.front() <= cards2.size() - 1) {
             std::queue<int> cards1_sub = cards1;
@@ -77,7 +112,10 @@ static unsigned long long recurse(std::queue<int> cards1, std::queue<int> cards2
             for (int i = 0; i < pop_num2; i++)
                 cards2_sub.pop();
 
-            player1_win = recurse(cards1_sub, cards2_sub);
+#ifdef DEBUG
+            std::cout << "Playing a sub-game to determine the winner...\n\n";
+#endif
+            player1_win = recurse(cards1_sub, cards2_sub, game);
         } else
             player1_win = (cards1.front() > cards2.front());
 
@@ -90,8 +128,18 @@ static unsigned long long recurse(std::queue<int> cards1, std::queue<int> cards2
         }
         cards1.pop();
         cards2.pop();
+
+#ifdef DEBUG
+        std::cout << "Player " << (player1_win ? 1 : 2) << " wins round " << round << " of game " << game << "!\n";
+#endif
+        round++;
     }
 
+#ifdef DEBUG
+    std::cout << "The winner of game " << game << " is player " << (player1_win ? 1 : 2) << "!\n\n";
+
+    std::cout << "...anyway, back to game " << from_game << ".\n";
+#endif
     return player1_win;
 }
 
@@ -99,16 +147,39 @@ static unsigned long long solution_for_puzzle_2(std::queue<int> cards1, std::que
 {
     bool player1_win;
 
+    last_game = 1;
+    int game = last_game;
+    int round = 1;
+
     std::set<std::pair<std::queue<int>, std::queue<int>>> past;
 
+#ifdef DEBUG
+    std::cout << "=== Game " << game << " ===\n";
+#endif
+
     while (cards1.size() > 0 && cards2.size() > 0) {
+#ifdef DEBUG
+        std::cout << "\n-- Round " << round << " (Game " << game << ") --\n";
+        std::cout << "Player 1's deck: "; print_cards(cards1); std::cout << "\n";
+        std::cout << "Player 2's deck: "; print_cards(cards2); std::cout << "\n";
+#endif
+
         // if cards1 and cards2 seen before, player1 win
         std::pair<std::queue<int>, std::queue<int>> p{cards1, cards2};
         if (past.find(p) != past.end()) {
+#ifdef DEBUG
+            std::cout << "same cards as a previous round\n";
+            std::cout << "Player 1 wins round " << round << " of game " << game << "!\n";
+#endif
             player1_win = true;
             break;
         } else
             past.insert(p);
+
+#ifdef DEBUG
+        std::cout << "Player 1 plays: " << cards1.front() << "\n";
+        std::cout << "Player 2 plays: " << cards2.front() << "\n";
+#endif
 
         if (cards1.front() <= cards1.size() - 1 && cards2.front() <= cards2.size() - 1) {
             std::queue<int> cards1_sub = cards1;
@@ -134,7 +205,10 @@ static unsigned long long solution_for_puzzle_2(std::queue<int> cards1, std::que
             for (int i = 0; i < pop_num2; i++)
                 cards2_sub.pop();
 
-            player1_win = recurse(cards1_sub, cards2_sub);
+#ifdef DEBUG
+            std::cout << "Playing a sub-game to determine the winner...\n\n";
+#endif
+            player1_win = recurse(cards1_sub, cards2_sub, game);
         } else
             player1_win = (cards1.front() > cards2.front());
 
@@ -147,7 +221,20 @@ static unsigned long long solution_for_puzzle_2(std::queue<int> cards1, std::que
         }
         cards1.pop();
         cards2.pop();
+
+#ifdef DEBUG
+        std::cout << "Player " << (player1_win ? 1 : 2) << " wins round " << round << " of game " << game << "!\n";
+#endif
+        round++;
     }
+
+#ifdef DEBUG
+    std::cout << "The winner of game " << game << " is player " << (player1_win ? 1 : 2) << "!\n\n";
+
+    std::cout << "\n== Post-game results ==\n";
+    std::cout << "Player 1's deck: "; print_cards(cards1); std::cout << "\n";
+    std::cout << "Player 2's deck: "; print_cards(cards2); std::cout << "\n";
+#endif
 
     unsigned long long score = 0;
     std::queue<int> winner;
