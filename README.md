@@ -34,3 +34,10 @@ How about using unordered_map? Will it improve performance?
 
 Add constructor to some struct types to see if it can simplify code.
 
+
+Day 19
+------
+
+I first converted rules into an NFA, then converted this NFA into a DFA,
+then used this DFA to recognize the messages. There might be a better way to
+solve these two puzzles of Day 19.
