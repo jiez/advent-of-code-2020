@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 #include <deque>
-#include <set>
+#include <unordered_set>
 
 //#define DEBUG
 
@@ -49,6 +49,18 @@ static void print_cards(const std::deque<int>& cards)
     }
 }
 
+struct cards_hash {
+    size_t operator()(const std::pair<std::deque<int>, std::deque<int>>& cards) const {
+        std::hash<int> hasher;
+        size_t seed = 0;
+        for (auto c: cards.first)
+            seed ^= hasher(c) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+        for (auto c: cards.second)
+            seed ^= hasher(c) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+        return seed;
+    }
+};
+
 // return 1 if player 1 win, otherwise return 0
 // but for game 0, return the score of winner instead
 static unsigned long long recurse(std::deque<int> cards1, std::deque<int> cards2, int from_game)
@@ -59,7 +71,7 @@ static unsigned long long recurse(std::deque<int> cards1, std::deque<int> cards2
     int game = last_game;
     int round = 1;
 
-    std::set<std::pair<std::deque<int>, std::deque<int>>> past;
+    std::unordered_set<std::pair<std::deque<int>, std::deque<int>>, cards_hash> past;
 
 #ifdef DEBUG
     std::cout << "=== Game " << game << " ===\n";
