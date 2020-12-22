@@ -3,29 +3,29 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <queue>
+#include <deque>
 #include <set>
 
 //#define DEBUG
 
 static int last_game;
 
-static unsigned long long solution_for_puzzle_1(std::queue<int> cards1, std::queue<int> cards2)
+static unsigned long long solution_for_puzzle_1(std::deque<int> cards1, std::deque<int> cards2)
 {
     while(cards1.size() > 0 && cards2.size() > 0) {
         if (cards1.front() > cards2.front()) {
-            cards1.push(cards1.front());
-            cards1.push(cards2.front());
+            cards1.push_back(cards1.front());
+            cards1.push_back(cards2.front());
         } else {
-            cards2.push(cards2.front());
-            cards2.push(cards1.front());
+            cards2.push_back(cards2.front());
+            cards2.push_back(cards1.front());
         }
-        cards1.pop();
-        cards2.pop();
+        cards1.pop_front();
+        cards2.pop_front();
     }
 
     unsigned long long score = 0;
-    std::queue<int> winner;
+    std::deque<int> winner;
     if (cards1.size() > 0)
         winner = cards1;
     else
@@ -34,25 +34,24 @@ static unsigned long long solution_for_puzzle_1(std::queue<int> cards1, std::que
     int mult = winner.size();
     while (!winner.empty()) {
         score += winner.front() * mult;
-        winner.pop();
+        winner.pop_front();
         mult--;
     }
     return score;
 }
 
-static void print_cards(std::queue<int> cards)
+static void print_cards(const std::deque<int>& cards)
 {
-    while (!cards.empty()) {
-        std::cout << cards.front();
-        cards.pop();
-        if (!cards.empty())
+    for (int i = 0; i < cards.size(); i++) {
+        std::cout << cards[i];
+        if (i != cards.size() - 1)
             std::cout << ", ";
     }
 }
 
 // return 1 if player 1 win, otherwise return 0
 // but for game 0, return the score of winner instead
-static unsigned long long recurse(std::queue<int> cards1, std::queue<int> cards2, int from_game)
+static unsigned long long recurse(std::deque<int> cards1, std::deque<int> cards2, int from_game)
 {
     bool player1_win;
 
@@ -60,7 +59,7 @@ static unsigned long long recurse(std::queue<int> cards1, std::queue<int> cards2
     int game = last_game;
     int round = 1;
 
-    std::set<std::pair<std::queue<int>, std::queue<int>>> past;
+    std::set<std::pair<std::deque<int>, std::deque<int>>> past;
 
 #ifdef DEBUG
     std::cout << "=== Game " << game << " ===\n";
@@ -74,7 +73,7 @@ static unsigned long long recurse(std::queue<int> cards1, std::queue<int> cards2
 #endif
 
         // if cards1 and cards2 seen before, player1 win
-        std::pair<std::queue<int>, std::queue<int>> p{cards1, cards2};
+        std::pair<std::deque<int>, std::deque<int>> p{cards1, cards2};
         if (past.find(p) != past.end()) {
 #ifdef DEBUG
             std::cout << "same cards as a previous round\n";
@@ -91,28 +90,15 @@ static unsigned long long recurse(std::queue<int> cards1, std::queue<int> cards2
 #endif
 
         if (cards1.front() <= cards1.size() - 1 && cards2.front() <= cards2.size() - 1) {
-            std::queue<int> cards1_sub = cards1;
-            std::queue<int> cards2_sub = cards2;
-            int num1 = cards1_sub.front();
-            int num2 = cards2_sub.front();
-            cards1_sub.pop();
-            cards2_sub.pop();
+            std::deque<int> cards1_sub;
+            std::deque<int> cards2_sub;
+            int num1 = cards1.front();
+            int num2 = cards2.front();
 
-            for (int i = 0; i < num1; i++) {
-                cards1_sub.push(cards1_sub.front());
-                cards1_sub.pop();
-            }
-            int pop_num1 = cards1_sub.size() - num1;
-            for (int i = 0; i < pop_num1; i++)
-                cards1_sub.pop();
-
-            for (int i = 0; i < num2; i++) {
-                cards2_sub.push(cards2_sub.front());
-                cards2_sub.pop();
-            }
-            int pop_num2 = cards2_sub.size() - num2;
-            for (int i = 0; i < pop_num2; i++)
-                cards2_sub.pop();
+            std::copy(cards1.begin() + 1, cards1.begin() + 1 + num1,
+                      std::back_inserter(cards1_sub));
+            std::copy(cards2.begin() + 1, cards2.begin() + 1 + num2,
+                      std::back_inserter(cards2_sub));
 
 #ifdef DEBUG
             std::cout << "Playing a sub-game to determine the winner...\n\n";
@@ -122,14 +108,14 @@ static unsigned long long recurse(std::queue<int> cards1, std::queue<int> cards2
             player1_win = (cards1.front() > cards2.front());
 
         if (player1_win) {
-            cards1.push(cards1.front());
-            cards1.push(cards2.front());
+            cards1.push_back(cards1.front());
+            cards1.push_back(cards2.front());
         } else {
-            cards2.push(cards2.front());
-            cards2.push(cards1.front());
+            cards2.push_back(cards2.front());
+            cards2.push_back(cards1.front());
         }
-        cards1.pop();
-        cards2.pop();
+        cards1.pop_front();
+        cards2.pop_front();
 
 #ifdef DEBUG
         std::cout << "Player " << (player1_win ? 1 : 2) << " wins round " << round << " of game " << game << "!\n";
@@ -153,7 +139,7 @@ static unsigned long long recurse(std::queue<int> cards1, std::queue<int> cards2
 
     // for game 1, return score of winner
     unsigned long long score = 0;
-    std::queue<int> winner;
+    std::deque<int> winner;
     if (player1_win)
         winner = cards1;
     else
@@ -162,13 +148,13 @@ static unsigned long long recurse(std::queue<int> cards1, std::queue<int> cards2
     int mult = winner.size();
     while (!winner.empty()) {
         score += winner.front() * mult;
-        winner.pop();
+        winner.pop_front();
         mult--;
     }
     return score;
 }
 
-static unsigned long long solution_for_puzzle_2(std::queue<int> cards1, std::queue<int> cards2)
+static unsigned long long solution_for_puzzle_2(std::deque<int> cards1, std::deque<int> cards2)
 {
     last_game = 0;
 
@@ -184,8 +170,8 @@ int main()
         return -1;
     }
 
-    std::queue<int> cards1, cards2;
-    std::queue<int>* cards;
+    std::deque<int> cards1, cards2;
+    std::deque<int>* cards;
 
     std::string line;
     int player;
@@ -202,7 +188,7 @@ int main()
             continue;
         }
 
-        cards->push(stoi(line));            
+        cards->push_back(stoi(line));            
     }
 
     unsigned long long score;
@@ -214,6 +200,8 @@ int main()
     score = solution_for_puzzle_2(cards1, cards2);
     std::cout << "recursive score is " << score << "\n";
     assert(score == 33469);
+
+    std::cout << last_game << " games\n";
 
     return 0;
 }
