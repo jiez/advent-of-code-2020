@@ -65,14 +65,16 @@ static unsigned long long recurse(std::queue<int> cards1, std::queue<int> cards2
                 cards1_sub.push(cards1_sub.front());
                 cards1_sub.pop();
             }
-            for (int i = 0; i < cards1_sub.size() - num1; i++)
+            int pop_num1 = cards1_sub.size() - num1;
+            for (int i = 0; i < pop_num1; i++)
                 cards1_sub.pop();
 
             for (int i = 0; i < num2; i++) {
                 cards2_sub.push(cards2_sub.front());
                 cards2_sub.pop();
             }
-            for (int i = 0; i < cards2_sub.size() - num2; i++)
+            int pop_num2 = cards2_sub.size() - num2;
+            for (int i = 0; i < pop_num2; i++)
                 cards2_sub.pop();
 
             player1_win = recurse(cards1_sub, cards2_sub);
@@ -120,14 +122,16 @@ static unsigned long long solution_for_puzzle_2(std::queue<int> cards1, std::que
                 cards1_sub.push(cards1_sub.front());
                 cards1_sub.pop();
             }
-            for (int i = 0; i < cards1_sub.size() - num1; i++)
+            int pop_num1 = cards1_sub.size() - num1;
+            for (int i = 0; i < pop_num1; i++)
                 cards1_sub.pop();
 
             for (int i = 0; i < num2; i++) {
                 cards2_sub.push(cards2_sub.front());
                 cards2_sub.pop();
             }
-            for (int i = 0; i < cards2_sub.size() - num2; i++)
+            int pop_num2 = cards2_sub.size() - num2;
+            for (int i = 0; i < pop_num2; i++)
                 cards2_sub.pop();
 
             player1_win = recurse(cards1_sub, cards2_sub);
