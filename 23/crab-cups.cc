@@ -1,43 +1,42 @@
+#include <cassert>
 #include <string>
 #include <iostream>
-#include <cassert>
+#include <algorithm>
+#include <deque>
+#include <iterator>
 
 // we keep the current cup to be the first one
-static std::string one_move(std::string circle)
+static void one_move(std::deque<int>& circle)
 {
-    std::string three_cups = circle.substr(1, 3);
-    // remove the three cups
-    circle.erase(1, 3);
+    auto s = circle.begin() + 1;
+    auto t = circle.begin() + 4;
+    std::deque<int> three_cups(s, t);
 
-    char current_cup = circle[0];
-    char dest_cup = current_cup;
+    // remove the three cups
+    circle.erase(s, t);
+
+    int current_cup = circle[0];
+    int dest_cup = current_cup;
     do {
         dest_cup--;
-        if (dest_cup < '1')
-            dest_cup = '9';
-    } while (three_cups.find(dest_cup) != std::string::npos);
+        if (dest_cup < 1)
+            dest_cup = 9;
+    } while (std::find(three_cups.begin(), three_cups.end(), dest_cup) != three_cups.end());
 
-    size_t dest = circle.find(dest_cup);
+    auto dest = std::find(circle.begin(), circle.end(), dest_cup);
 
-    std::string result = circle.substr(0, dest + 1) + three_cups + circle.substr(dest + 1);
+    circle.insert(dest + 1, three_cups.begin(), three_cups.end());
 
     // move the next current cup to the first place
-    result = result.substr(1) + result[0];
-
-    return result;
+    int first = circle.front();
+    circle.pop_front();
+    circle.push_back(first);
 }
 
-static std::string solution_for_puzzle_1(std::string circle)
+static void solution_for_puzzle_1(std::deque<int>& circle)
 {
     for (int i = 0; i < 100; i++)
-        circle = one_move(circle);
-
-    size_t idx = circle.find('1');
-    assert(idx != std::string::npos);
-
-    std::string result = circle.substr(idx + 1) + circle.substr(0, idx);
-
-    return result;
+        one_move(circle);
 }
 
 int main()
@@ -46,8 +45,19 @@ int main()
     // below is the test in the puzzle
     //const std::string input{"389125467"};
 
-    std::string result = solution_for_puzzle_1(input);
-    std::cout << "result is " << result << "\n";
+    std::deque<int> circle;
+    for (auto c: input)
+        circle.push_back(c - '0');
+
+    solution_for_puzzle_1(circle);
+
+    auto idx = std::find(circle.begin(), circle.end(), 1);
+    std::cout << "result is ";
+    for (auto it = std::next(idx); it != circle.end(); ++it)
+        std::cout << *it;
+    for (auto it = circle.begin(); it != idx; ++it)
+        std::cout << *it;
+    std::cout << "\n";
 
     return 0;
 }
