@@ -1,124 +1,116 @@
 #include <cassert>
 #include <string>
 #include <iostream>
-#include <unordered_map>
 
-// NEXT points to the clockwise next cup
-struct cup_t {
-    int label;
-    cup_t *next;
-};
 
+// assume cups will be labeled from 1 to N
 struct cup_circle_t {
-    int max;
-    int min;
-    cup_t *current;
-    cup_t *current_prev;
-    std::unordered_map<int, cup_t *> lookup_table;
+    int current;
+    int current_prev;
+    // next_cup[i] is the index of the clockwisely next cup. next_cup[0] is unused
+    int *next_cup;
+    int num_of_cups;
 
-    cup_circle_t(): max{-1}, min{-1}, current{nullptr} {}
-    ~cup_circle_t() {
-        if (current == nullptr)
-            return;
+    cup_circle_t(const std::string& input, int num) {
+        next_cup = new int[num + 1];
+        num_of_cups = num;
 
-        cup_t *p = current;
-        do {
-            cup_t *q = p->next;
-            delete p;
-            p = q;
-        } while (p != current);
-
-        current = nullptr;
-    }
-
-    // add cup N before CURRENT
-    void add(int n) {
-        cup_t *t = new cup_t;
-        t->label = n;
-        if (current == nullptr) {
-            t->next = t;
-            current = t;
-            current_prev = t;
-        } else {
-            cup_t *p = current_prev;
-            p->next = t;
-            t->next = current;
-            current_prev = t;
+        current = input[0] - '0';
+        for (int i = 0; i < input.size() - 1; i++) {
+            int cup = input[i] - '0';
+            next_cup[cup] = input[i + 1] - '0';
         }
-        assert(lookup_table.find(n) == lookup_table.end());
-        lookup_table[n] = t;
-        if (min == -1 || n < min)
-            min = n;
-        if (max == -1 || n > max)
-            max = n;
+
+        int last_cup = input.back() - '0';
+
+        if (input.size() == num) {
+            next_cup[last_cup] = current;
+            current_prev = last_cup;
+            return;
+        }
+
+        next_cup[last_cup] = input.size() + 1;
+
+        // add cups from input.size() + 1 to num
+        for (int i = input.size() + 1; i <= num; i++)
+            next_cup[i] = i + 1;
+
+        next_cup[num] = current;
+        current_prev = num;
     }
 
-    bool find(cup_t *from, size_t len, int cup) {
-        cup_t *p = from;
+    ~cup_circle_t() {
+        delete [] next_cup;
+    }
+
+    bool find(int from, size_t len, int cup) {
+        int p = from;
         for (int i = 0; i < len; i++) {
-            if (p->label == cup)
+            if (p == cup)
                 return true;
-            p = p->next;
+            p = next_cup[p];
         }
         return false;
     }
 
     void one_move() {
-        int current_cup = current->label;
+        int current_cup = current;
         int dest_cup = current_cup;
         do {
             dest_cup--;
-            if (dest_cup < min)
-                dest_cup = max;
-        } while (find(current->next, 3, dest_cup));
-        cup_t *dest = lookup_table.find(dest_cup)->second;
-        cup_t *three_cups_first = current->next;
-        cup_t *three_cups_last = three_cups_first->next->next;
+            if (dest_cup == 0)
+                dest_cup = num_of_cups;
+        } while (find(next_cup[current], 3, dest_cup));
+        int three_cups_first = next_cup[current];
+        int three_cups_last = next_cup[next_cup[three_cups_first]];
 
         // take out 3 cups
-        current->next = three_cups_last->next;
+        next_cup[current] = next_cup[three_cups_last];
 
         // insert 3 cups after dest
-        three_cups_last->next = dest->next;
-        dest->next = three_cups_first;
+        next_cup[three_cups_last] = next_cup[dest_cup];
+        next_cup[dest_cup] = three_cups_first;
 
         // move current to the next
-        current = current->next;
-    }
-
-    void set_current(int cup) {
-        assert(cup >= min && cup <= max);
-        current = lookup_table[cup];
-    }
-
-    void move_current_next() {
-        current = current->next;
-    }
-
-    int get_current_cup() {
-        return current->label;
-    }
-
-    // print cups from current cup, which is excluded
-    void print_cups() {
-        cup_t *p = current->next;
-        while (p != current) {
-            std::cout << p->label;
-            p = p->next;
-        }
+        current = next_cup[current];
     }
 };
 
-static void solution_for_puzzle_1(cup_circle_t* circle)
+static void solution_for_puzzle_1(const std::string& input)
 {
+    size_t num = input.size();
+    cup_circle_t circle(input, num);
+
     for (int i = 0; i < 100; i++)
-        circle->one_move();
+        circle.one_move();
+
+    std::cout << "result is ";
+    size_t cup = 1;
+    while (1) {
+        cup = circle.next_cup[cup];
+        if (cup == 1)
+            break;
+        std::cout << cup;
+    }
+    std::cout << "\n";
 }
 
-static void solution_for_puzzle_2(cup_circle_t* circle)
+static void solution_for_puzzle_2(const std::string& input)
 {
+    size_t num = 1000000;
+    cup_circle_t circle(input, num);
+
     for (int i = 0; i < 10000000; i++)
-        circle->one_move();
+        circle.one_move();
+
+    unsigned long long result;
+    size_t cup = 1;
+    cup = circle.next_cup[cup];
+    result = cup;
+    cup = circle.next_cup[cup];
+    result *= cup;
+
+    std::cout << "result is " << result << "\n";
 }
 
 int main()
@@ -127,35 +119,9 @@ int main()
     // below is the test in the puzzle
     //const std::string input{"389125467"};
 
-    cup_circle_t circle;
-    for (auto c: input)
-        circle.add(c - '0');
+    solution_for_puzzle_1(input);
 
-    solution_for_puzzle_1(&circle);
-
-    circle.set_current(1);
-    std::cout << "result is ";
-    circle.print_cups();
-    std::cout << "\n";
-
-    // part 2
-    unsigned long long result;
-
-    cup_circle_t circle2;
-    for (auto c: input)
-        circle2.add(c - '0');
-    for (int i = 10; i <= 1000000; i++)
-        circle2.add(i);
-
-    solution_for_puzzle_2(&circle2);
-
-    circle2.set_current(1);
-    circle2.move_current_next();
-    result = circle2.get_current_cup();
-    circle2.move_current_next();
-    result *= circle2.get_current_cup();
-
-    std::cout << "result is " << result << "\n";
+    solution_for_puzzle_2(input);
 
     return 0;
 }
