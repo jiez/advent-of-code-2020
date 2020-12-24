@@ -4,10 +4,8 @@
 #include <unordered_map>
 
 // NEXT points to the clockwise next cup
-// PREV points to the counter-clockwise next cup
 struct cup_t {
     int label;
-    cup_t *prev;
     cup_t *next;
 };
 
@@ -15,6 +13,7 @@ struct cup_circle_t {
     int max;
     int min;
     cup_t *current;
+    cup_t *current_prev;
     std::unordered_map<int, cup_t *> lookup_table;
 
     cup_circle_t(): max{-1}, min{-1}, current{nullptr} {}
@@ -37,15 +36,14 @@ struct cup_circle_t {
         cup_t *t = new cup_t;
         t->label = n;
         if (current == nullptr) {
-            t->prev = t;
             t->next = t;
             current = t;
+            current_prev = t;
         } else {
-            cup_t *p = current->prev;
+            cup_t *p = current_prev;
             p->next = t;
-            t->prev = p;
             t->next = current;
-            current->prev = t;
+            current_prev = t;
         }
         assert(lookup_table.find(n) == lookup_table.end());
         lookup_table[n] = t;
@@ -79,13 +77,10 @@ struct cup_circle_t {
 
         // take out 3 cups
         current->next = three_cups_last->next;
-        three_cups_last->next->prev = current;
 
         // insert 3 cups after dest
         three_cups_last->next = dest->next;
-        dest->next->prev = three_cups_last;
         dest->next = three_cups_first;
-        three_cups_first->prev = dest;
 
         // move current to the next
         current = current->next;
